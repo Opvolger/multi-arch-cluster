@@ -5,7 +5,6 @@ metadata:
   user: admin
 spec:
   hosts:
-  # https://serverfault.com/questions/160581/how-to-setup-passwordless-sudo-on-linux
 {% for host in groups["k0s"] %}
   - ssh:
       address: {{ hostvars[host].ansible_host }}

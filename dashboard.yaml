@@ -8,7 +8,7 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: Host(`dashboard.k8s.opvolger.eu`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+  - match: Host(`dashboard.k8s.opvolger.eu`) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`))
     kind: Rule
     services:
     - name: api@internal

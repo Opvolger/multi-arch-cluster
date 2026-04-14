@@ -1,0 +1,24 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: smb
+  namespace: kube-system
+provisioner: smb.csi.k8s.io
+parameters:
+  source: //192.168.8.13/persistentvolume
+  csi.storage.k8s.io/provisioner-secret-name: smbcreds
+  csi.storage.k8s.io/provisioner-secret-namespace: kube-system
+  csi.storage.k8s.io/node-stage-secret-name: smbcreds
+  csi.storage.k8s.io/node-stage-secret-namespace: kube-system
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - dir_mode=0770
+  - file_mode=0660
+  - uid=1001
+  - gid=1001
+  - noperm
+  - mfsymlinks
+  - cache=strict
+  - noserverino  # required to prevent data corruption
