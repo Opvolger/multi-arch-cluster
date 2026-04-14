@@ -26,7 +26,7 @@ ansible-playbook k0s_init.yaml -i inventory/ --user opvolger --ask-pass --ask-be
 ansible-playbook k0s_init.yaml -i inventory/ --user opvolger -vv --limit "nuc.cluster,"
 # change ip in inventory! and last run
 ansible-playbook k0s_init.yaml -i inventory/ --user opvolger -vv --limit "nuc.cluster,"
-# update or install clsuter
+# reboot and update or install cluster
 ansible-playbook k0s_install_update.yaml -i inventory/ --user opvolger -vv
 
 

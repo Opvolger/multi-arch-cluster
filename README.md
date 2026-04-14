@@ -1,15 +1,42 @@
-# Setup cluster
+# Setup Cluster
 
-https://docs.k0sproject.io/v1.21.2+k0s.1/k0s-multi-node/#5-add-controllers-to-the-cluster
-https://docs.k0sproject.io/v1.35.2+k0s.0/high-availability/
-
-## Build k0s
+First run ansible playbook in playbook directory.
+Then apply the next commands
 
 ```bash
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+kubectl apply -f dashboard.yaml
 ```
 
-add `--platform=riscv64` on every $(DOCKER) command in Makefile
+## Setup RISC-V node(s)
+
+I build k0s-riscv64 on a RISC-V board (Starfive VisionFive 2) with Debian and go and docker installed. Copied k0s-riscv64 to my main machine and started the setup.
+
+How to setup Debian on this board is already on my blog. I made a user opvolger and enabled the SSH server.
+
+## Setup ARM64 node(s)
+
+I used raspberry pi's for this, a 3B+ and a 5. I Flashed the SD cards with the `Raspberry Pi Images v2.0.7`, used the Raspberry Pi OS (64-bit). Setup the user (opvolger) enabled SSH-Server.
+
+If you want to use the UART for debugging the boot process, you can enable it:
+
+Append following line to /boot/config.txt
+
+```ini
+[all]
+enable_uart=1
+```
+
+For Kubernetes you will need `cgroup_memory` enabled. I added this to my boot command.
+
+Append following line to /boot/firmware/cmdline.txt
+
+```ini
+cgroup_memory=1 cgroup_enable=memory
+```
+
+## Setup AMD64 node(s)
+
+Just used a Debian iso to boot, added the SSH server, created a login voor the user opvolger
 
 ## HAProxy
 

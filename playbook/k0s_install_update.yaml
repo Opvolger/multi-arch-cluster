@@ -2,17 +2,9 @@
 - name: Setup all controller nodes
   hosts: localhost
   tasks:
-    - name: Render the yaml
-      ansible.builtin.set_fact:
-        k8s_yaml: '{{ lookup("template", "templates/k0sctl.yaml") }}'
-
-    - name: Print yaml
-      ansible.builtin.debug:
-        msg: "{{ k8s_yaml }}"
-
-    - name: Copy using inline content
-      ansible.builtin.copy:
-        content: "{{ k8s_yaml }}"
+    - name: Create k0sctl.yaml
+      ansible.builtin.template:
+        src: k0sctl.yaml
         dest: "{{ playbook_dir }}/temp/k0sctl.yaml"
         owner: opvolger
         group: opvolger

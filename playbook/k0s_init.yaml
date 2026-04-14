@@ -1,5 +1,5 @@
 ---
-# needed for k0sctl
+# needed for k0sctl (auto login and sudo)
 - name: Setup login with ssh and with sudo password
   hosts: k0s
   tasks:
@@ -33,113 +33,19 @@
   become: true
   hosts: samba
   tasks:
-    - name: Install Samba (Debian)
-      ansible.builtin.apt:
-        name:
-          - samba
-          - samba-common-bin
-          - smbclient
-          - python3-firewall
-          - firewalld
-        state: present
-        update_cache: true
-
-    - name: Server firewall samba
-      ansible.builtin.include_tasks: tasks/k0s_setup_firewall_samba.yaml
-
-    - name: Create system users for Samba
-      ansible.builtin.user:
-        name: "persistentvolume"
-        shell: /sbin/nologin
-        create_home: false
-        state: present
-
-    # Set Samba passwords using smbpasswd
-    - name: Set Samba user passwords
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail #
-          (echo '{{ sambaPassword }}'; echo '{{ sambaPassword }}') | smbpasswd -s -a persistentvolume
-        executable: /bin/bash
-      no_log: true
-      changed_when: true
-
-    # Enable the Samba accounts
-    - name: Enable Samba user accounts
-      ansible.builtin.command:
-        cmd: "smbpasswd -e persistentvolume"
-      changed_when: true
-
-    - name: Creates directory samba
-      ansible.builtin.file:
-        path: /srv/samba
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
-
-    - name: Creates directory persistentvolume
-      ansible.builtin.file:
-        path: /srv/samba/persistentvolume
-        state: directory
-        owner: persistentvolume
-        group: persistentvolume
-        mode: '0770'
-
-    - name: Create smb.conf
-      ansible.builtin.copy:
-        content: |
-          [global]
-              workgroup = k8s
-              server string = nuc
-              security = user
-              map to guest = Bad User
-
-              # Logging
-              log file = /var/log/samba/log.%m
-              max log size = 5000
-              log level = 1
-
-              # Performance tuning
-              socket options = TCP_NODELAY IPTOS_LOWDELAY
-              read raw = yes
-              write raw = yes
-              use sendfile = yes
-              aio read size = 16384
-              aio write size = 16384
-
-              # Protocol settings
-              server min protocol = SMB2
-              server max protocol = SMB3
-
-              # Disable printer sharing (almost never needed on a file server)
-              load printers = no
-              printing = bsd
-              printcap name = /dev/null
-              disable spoolss = yes
-
-
-          [persistentvolume]
-              comment = Persistent Volume for Cluster
-              path = /srv/samba/persistentvolume
-              browseable = yes
-              writable = yes
-              guest ok = no
-              create mask = 0660
-              directory mask = 0770
-              valid users = persistentvolume
-        dest: "/etc/samba/smb.conf"
-        owner: root
-        group: root
-        mode: '0644'
-      notify:
-        - Restart samba
+    - name: Setup samba server
+      ansible.builtin.include_tasks: tasks/k0s_setup_samba.yaml
 
   handlers:
     - name: Restart samba
       ansible.builtin.systemd:
         name: smb
         state: restarted
+
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
 
 - name: Setup for all or servers
   become: true
@@ -151,6 +57,12 @@
 
     - name: Server and node firewall
       ansible.builtin.include_tasks: tasks/k0s_setup_firewall.yaml
+
+  handlers:
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
 
 - name: Setup network with correct ip!
   ansible.builtin.import_playbook: k0s_setup_network.yaml
