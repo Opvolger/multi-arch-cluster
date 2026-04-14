@@ -7,6 +7,8 @@
   notify: Reload firewalld
   loop: "{{ groups['k0s'] }}"
 
+# after trusted network for all nodes, maybe i need less ports open on the nodes it self?
+
 - name: Permit tcp
   ansible.posix.firewalld:
     port: "{{ item }}/tcp"
@@ -44,7 +46,7 @@
 - name: Permit 10.x cluster traffic
   ansible.posix.firewalld:
     zone: trusted
-    source: 10.0.0.0/8 # services
+    source: 10.0.0.0/8
     permanent: true
     state: enabled
   notify: Reload firewalld
