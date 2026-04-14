@@ -1,23 +1,4 @@
-# Install k0s cluster
-
-## Flash OS
-
-Use Raspberry Imager, enable ssh
-
-Append following line to /boot/config.txt
-
-```ini
-[all]
-enable_uart=1
-```
-
-Append following line to /boot/firmware/cmdline.txt
-
-```ini
-cgroup_memory=1 cgroup_enable=memory
-```
-
-## Playbook
+# Playbook
 
 ```bash
 # will crash 1ste time on install helm, network changes.
