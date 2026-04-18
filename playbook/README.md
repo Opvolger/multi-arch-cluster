@@ -10,7 +10,8 @@ ansible-playbook k0s_init.yaml -i inventory/ --user opvolger -vv --limit "nuc.cl
 # reboot and update or install cluster
 ansible-playbook k0s_install_update.yaml -i inventory/ --user opvolger -vv
 
-
+# reset
+ansible-playbook k0s_reboot_cluster.yaml -i inventory/ --user opvolger -vv
 
 # shutdown before power off the cluster!
 ansible-playbook k0s_shutdown_cluster.yaml -i inventory/ --user opvolger -vv

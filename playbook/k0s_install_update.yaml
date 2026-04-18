@@ -4,7 +4,7 @@
   tasks:
     - name: Create k0sctl.yaml
       ansible.builtin.template:
-        src: k0sctl.yaml
+        src: templates/k0sctl.yaml
         dest: "{{ playbook_dir }}/temp/k0sctl.yaml"
         owner: opvolger
         group: opvolger

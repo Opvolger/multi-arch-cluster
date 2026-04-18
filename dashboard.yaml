@@ -5,10 +5,8 @@ metadata:
   name: traefik-dashboard
   namespace: traefik-system
 spec:
-  entryPoints:
-    - web
   routes:
-  - match: Host(`dashboard.k8s.opvolger.eu`) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+  - match: Host(`dashboard.k8s.opvolger.eu`)
     kind: Rule
     services:
     - name: api@internal

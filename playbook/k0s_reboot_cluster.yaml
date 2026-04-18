@@ -1,0 +1,8 @@
+---
+- name: Setup for node or server
+  hosts: k0s
+  gather_facts: false
+  tasks:
+    - name: Reboot
+      become: true
+      ansible.builtin.reboot:

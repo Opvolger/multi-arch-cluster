@@ -4,6 +4,8 @@ kind: StorageClass
 metadata:
   name: smb
   namespace: kube-system
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
 provisioner: smb.csi.k8s.io
 parameters:
   source: //192.168.8.13/persistentvolume
