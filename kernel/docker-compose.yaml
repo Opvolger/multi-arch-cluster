@@ -1,0 +1,6 @@
+services:
+  kernel-build:
+    build: .
+    volumes:
+      - ./source:/kernel/source
+    user: "1000:1000"

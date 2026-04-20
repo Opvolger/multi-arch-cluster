@@ -1,1 +1,6 @@
 playbook/temp/**
+kernel/source/linux-*/**
+kernel/source/*.deb
+kernel/source/*.buildinfo
+kernel/source/*.changes
+
