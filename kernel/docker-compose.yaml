@@ -3,4 +3,5 @@ services:
     build: .
     volumes:
       - ./source:/kernel/source
+      - ./config:/kernel/config
     user: "1000:1000"

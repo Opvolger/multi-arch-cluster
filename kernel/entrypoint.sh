@@ -3,7 +3,9 @@ mkdir -p source
 
 tar -xf linux-6.19.13.tar.xz -C source
 rm source/linux-6.19.13/.gitignore
-cp config source/linux-6.19.13/.config
+cp config/.config source/linux-6.19.13/.config
+# patched pcie-starfive.c so pci-e is working 
+cp patch/pcie-starfive.c source/linux-6.19.13/drivers/pci/controller/plda/pcie-starfive.c
 
 cd source/linux-6.19.13
 scripts/config --disable SYSTEM_TRUSTED_KEYS
