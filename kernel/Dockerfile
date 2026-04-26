@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt-get update && apt-get install -y \
     bash \
+    libncurses-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid ${HOST_USER_UID} builder \
