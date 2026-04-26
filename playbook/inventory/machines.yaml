@@ -6,8 +6,9 @@ all:
         nuc.cluster:
           ansible_host: 192.168.8.13 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
-            role: worker
+            role: controller+worker
             k0sBinaryPath: /home/opvolger/k0s-amd64
+            noTaints: true
           network:
             ipv4: 192.168.8.13
             interface: eno1
@@ -25,9 +26,8 @@ all:
         rp3b.cluster:
           ansible_host: 192.168.8.11 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
-            role: controller+worker
+            role: worker
             k0sBinaryPath: /home/opvolger/k0s-arm64
-            noTaints: true
           network:
             ipv4: 192.168.8.11
             interface: eth0
