@@ -39,5 +39,4 @@ USER ${HOST_USER_UID}:${HOST_USER_GID}
 
 RUN wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.19.13.tar.xz
 
-COPY config .
 ENTRYPOINT ["/bin/bash","entrypoint.sh"]
