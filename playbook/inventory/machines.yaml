@@ -3,16 +3,6 @@ all:
   children:
     linux:
       hosts:
-        nuc.cluster:
-          ansible_host: 192.168.8.13 # first set this to dhcp address and run k0s_setup_network.yaml
-          k8s:
-            role: controller+worker
-            k0sBinaryPath: /home/opvolger/k0s-amd64
-            noTaints: true
-          network:
-            ipv4: 192.168.8.13
-            interface: eno1
-          arch: amd64
         rp5.cluster:
           ansible_host: 192.168.8.10 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
@@ -44,6 +34,25 @@ all:
             ipv4: 192.168.8.12
             interface: end0
           arch: riscv64
+        nuc.cluster:
+          ansible_host: 192.168.8.13 # first set this to dhcp address and run k0s_setup_network.yaml
+          k8s:
+            role: controller+worker
+            k0sBinaryPath: /home/opvolger/k0s-amd64
+            noTaints: true
+          network:
+            ipv4: 192.168.8.13
+            interface: eno1
+          arch: amd64
+        supermicro.cluster:
+          ansible_host: 192.168.8.14 # first set this to dhcp address and run k0s_setup_network.yaml
+          k8s:
+            role: worker
+            k0sBinaryPath: /home/opvolger/k0s-amd64
+          network:
+            ipv4: 192.168.8.14
+            interface: eno1
+          arch: amd64
     samba:
       hosts:
         nuc.cluster:
@@ -54,3 +63,4 @@ all:
         rp5.cluster:
         rp3b.cluster:
         sfvf2lite.cluster:
+        supermicro.cluster:
