@@ -7,8 +7,9 @@ quake2_pod = None
 
 config.load_kube_config()
 core_v1 = client.CoreV1Api()
+namespace = 'games'
 
-pods = core_v1.list_namespaced_pod('default')
+pods = core_v1.list_namespaced_pod(namespace)
 for pod in pods.items:
     if pod.metadata.name.startswith("basm-quake2"):
         quake2_pod = pod.metadata.name
@@ -17,7 +18,7 @@ if quake2_pod:
     # open stream
     resp = stream(core_v1.connect_get_namespaced_pod_attach,
                             quake2_pod,
-                            "default",
+                            namespace,
                             stderr=True,
                             stdin=True,
                             stdout=True,

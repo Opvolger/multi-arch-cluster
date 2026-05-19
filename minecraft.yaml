@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: basm-minecraft
-  namespace: default
+  namespace: games
   labels:
     app.kubernetes.io/instance: basm-minecraft
 spec:
@@ -59,7 +59,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: basm-minecraft
-  namespace: default
+  namespace: games
   labels:
     app.kubernetes.io/instance: basm-minecraft
 status:
@@ -82,7 +82,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: basm-minecraft
-  namespace: default
+  namespace: games
   labels:
     app.kubernetes.io/instance: basm-minecraft
 spec:
