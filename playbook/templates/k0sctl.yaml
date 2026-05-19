@@ -62,6 +62,135 @@ spec:
             - name: csi-driver-smb
               url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
             charts:
+            
+            - name: kube-prometheus-stack-v2
+              namespace: monitoring
+              chartname: prometheus-community/kube-prometheus-stack
+              version: "85.2.0" # Use the latest stable version
+              values: |
+                grafana:
+                  ingress:
+                    enabled: true
+                    ingressClassName: traefik
+                    hosts:
+                      - grafana.k8s.opvolger.eu
+                    annotations:
+                      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+                prometheus-node-exporter:
+                  image:
+                    # riscv64 images not supported on quay.io, use docker.io/prom
+                    registry: docker.io
+                    repository: prom/node-exporter
+                crds:
+                  upgradeJob:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                alertmanager:
+                  alertmanagerSpec:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                prometheusOperator:
+                  # image is there for amd64 and arm64, not riscv64 (yet)
+                  affinity:
+                    nodeAffinity:
+                      requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                          - matchExpressions:
+                              - key: kubernetes.io/arch
+                                operator: In
+                                values:
+                                  - amd64
+                                  - arm64
+                  admissionWebhooks:
+                    deployment:
+                      # image is there for amd64 and arm64, not riscv64 (yet)
+                      affinity:
+                        nodeAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                            nodeSelectorTerms:
+                              - matchExpressions:
+                                  - key: kubernetes.io/arch
+                                    operator: In
+                                    values:
+                                      - amd64
+                                      - arm64
+                    patch:
+                      # image is there for amd64 and arm64, not riscv64 (yet)
+                      affinity:
+                        nodeAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                            nodeSelectorTerms:
+                              - matchExpressions:
+                                  - key: kubernetes.io/arch
+                                    operator: In
+                                    values:
+                                      - amd64
+                                      - arm64
+                prometheus:
+                  prometheusSpec:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                thanosRuler:
+                  thanosRulerSpec:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                kubeEtcd:
+                  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+                    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
+                kubeControllerManager:
+                  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+                    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
+                kubeScheduler:
+                  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+                    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
             # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-controller:v0.15.3  --push --file controller/Dockerfile .
             # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.15.3  --push --file speaker/Dockerfile .
             # helm install metallb metallb/metallb --values templates/metallb.yaml -n metallb-system
@@ -159,7 +288,7 @@ spec:
         storage:
           type: etcd
         telemetry:
-          enabled: false
+          enabled: true
   options:
     wait:
       enabled: false # raspberry pi 3 is slow! timeout
