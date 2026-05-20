@@ -53,6 +53,17 @@ all:
             ipv4: 192.168.8.14
             interface: eno1
           arch: amd64
+        sfvf2lite2.cluster:
+          ansible_host: 192.168.8.15 # first set this to dhcp address and run k0s_setup_network.yaml
+          k8s:
+            role: worker
+            k0sBinaryPath: /home/opvolger/k0s-riscv64
+            environment:
+              ETCD_UNSUPPORTED_ARCH: riscv64
+          network:
+            ipv4: 192.168.8.15
+            interface: end0
+          arch: riscv64
     samba:
       hosts:
         nuc.cluster:
@@ -64,3 +75,4 @@ all:
         rp3b.cluster:
         sfvf2lite.cluster:
         supermicro.cluster:
+        sfvf2lite2.cluster:
