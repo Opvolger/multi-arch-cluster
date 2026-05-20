@@ -31,3 +31,21 @@ kubectl attach -it -n games deploy/basm-quake2
 # minecraft
 kubectl attach -it -n games deploy/basm-minecraft
  ```
+
+## Install Jenkins
+
+waiting for [k8s-sidecar RISCV64 support](https://github.com/kiwigrid/k8s-sidecar/pull/580)
+
+```bash
+git clone https://github.com/Opvolger/k8s-sidecar.git
+cd k8s-sidecar
+git checkout add-riscv64-support
+docker buildx build . --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/k8s-sidecar:2.7.3  --push
+```
+
+```bash
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+kubectl create namespace jenkins
+helm install jenkins jenkins/jenkins -n jenkins --values jenkins_values.yaml
+```
