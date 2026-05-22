@@ -61,8 +61,9 @@ spec:
               url: https://metallb.github.io/metallb
             - name: csi-driver-smb
               url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+            - name: csi-driver-nfs
+              url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
             charts:
-            
             - name: kube-prometheus-stack-v2
               namespace: monitoring
               chartname: prometheus-community/kube-prometheus-stack
@@ -263,6 +264,43 @@ spec:
                     kubelet: /var/lib/k0s/kubelet
                 windows:
                     kubelet: 'C:\\var\\lib\\k0s\\kubelet'
+            - name: csi-driver-nfs
+              version: 4.13.2
+              namespace: kube-system
+              chartname: csi-driver-nfs/csi-driver-nfs
+              values: |
+                image:
+                    baseRepo: opvolger
+                    nfs:
+                        repository: /nfsplugin
+                        tag: v4.13.2
+                        pullPolicy: IfNotPresent
+                    csiProvisioner:
+                        repository: /csi-provisioner
+                        tag: 6.1-canary
+                        pullPolicy: IfNotPresent
+                    csiResizer:
+                        repository: /csi-resizer
+                        tag: 2.0-canary
+                        pullPolicy: IfNotPresent
+                    csiSnapshotter:
+                        repository: /csi-snapshotter
+                        tag: 8.5-canary
+                        pullPolicy: IfNotPresent
+                    livenessProbe:
+                        repository: /livenessprobe
+                        tag: 2.17-canary
+                        pullPolicy: IfNotPresent
+                    nodeDriverRegistrar:
+                        repository: /csi-node-driver-registrar
+                        tag: 2.15-canary
+                        pullPolicy: IfNotPresent
+                    externalSnapshotter:
+                        repository: /snapshot-controller
+                        tag: 8.5-canary
+                        pullPolicy: IfNotPresent
+                # for k0s change the kubelet path
+                kubeletDir: /var/lib/k0s/kubelet
             concurrencyLevel: 5
         konnectivity:
           adminPort: 8133
