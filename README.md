@@ -49,3 +49,25 @@ helm repo update
 kubectl create namespace jenkins
 helm install jenkins jenkins/jenkins -n jenkins --values jenkins_values.yaml
 ```
+
+## Octopus Deploy
+
+find your license: [octopus](https://billing.octopus.com/)
+
+```bash
+export YOUR_OCTOPUS_LICENSE=[here your base64 string]
+helm upgrade my-octopus-instance oci://ghcr.io/octopusdeploy/octopusdeploy-helm \
+--install \
+--namespace octopus-deploy \
+--create-namespace \
+--set octopus.acceptEula="Y" \
+--set mssql.enabled="true" \
+--set octopus.licenseKeyBase64="${YOUR_OCTOPUS_LICENSE}" \
+--values octopus_values.yaml
+```
+
+local deploy (own code with fix):
+
+```bash
+helm upgrade my-octopus-instance ~/code/octopus-helm-charts/charts/octopus-deploy --install --namespace octopus-deploy --create-namespace --set octopus.acceptEula="Y" --set mssql.enabled="true" --set octopus.licenseKeyBase64="${YOUR_OCTOPUS_LICENSE}" --values octopus_values.yaml
+```
