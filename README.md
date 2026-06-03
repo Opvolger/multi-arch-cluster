@@ -71,3 +71,9 @@ local deploy (own code with fix):
 ```bash
 helm upgrade my-octopus-instance ~/code/octopus-helm-charts/charts/octopus-deploy --install --namespace octopus-deploy --create-namespace --set octopus.acceptEula="Y" --set mssql.enabled="true" --set octopus.licenseKeyBase64="${YOUR_OCTOPUS_LICENSE}" --values octopus_values.yaml
 ```
+
+fix for adding agent, add this in command, kubernetesMonitor can't spin up on riscv64 node.
+
+```bash
+--set kubernetesMonitor.nodeSelector."kubernetes\\.io/arch"=amd64 \
+```

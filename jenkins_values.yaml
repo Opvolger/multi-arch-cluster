@@ -12,7 +12,7 @@ controller:
       image:
         repository: opvolger/k8s-sidecar
         tag: 2.7.3-4
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
   ingress:
     enabled: true
     hostName: "jenkins.k8s.opvolger.eu"

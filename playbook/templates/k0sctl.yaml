@@ -196,7 +196,7 @@ spec:
             # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.15.3  --push --file speaker/Dockerfile .
             # helm install metallb metallb/metallb --values templates/metallb.yaml -n metallb-system
             # helm uninstall metallb -n metallb-system
-            # kubectl apply -f templates/ip-pool.yaml -n metallb-system
+            # kubectl apply -f ip-pool.yaml -n metallb-system
             # https://oneuptime.com/blog/post/2026-02-09-kube-proxy-strict-arp-metallb/view
             - name: metallb
               chartname: metallb/metallb
@@ -215,8 +215,6 @@ spec:
                     # pullPolicy: Always
                     repository: opvolger/metallb-speaker
                     tag: v0.15.3
-            # helm install traefik traefik/traefik --values templates/traefik.yaml -n traefik-system --version 39.0.7
-            # helm uninstall traefik -n traefik-system
             # https://oneuptime.com/blog/post/2026-01-07-metallb-traefik-ingress/view
             - name: traefik
               chartname: traefik/traefik

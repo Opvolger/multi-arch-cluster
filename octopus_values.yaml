@@ -5,6 +5,7 @@ hooks:
 nodeSelector:
   kubernetes.io/arch: amd64
 octopus:
+  masterKey: cHtQOEsubXdbVDUpdVRqIA== # only demo no real secret
   username: opvolger
   password: Ab12345!Ab12345!
   email: bas@opvolger.net
@@ -24,7 +25,7 @@ octopus:
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     path: /
     hosts:
-      - "octopus.k8s.opvolger.eu"
+      - "octopus.opvolger.eu"
 mssql:
   enabled: true
   SA_PASSWORD: "Ab12345!Ab12345!"
