@@ -15,4 +15,7 @@ ansible-playbook k0s_reboot_cluster.yaml -i inventory/ --user opvolger -vv
 
 # shutdown before power off the cluster!
 ansible-playbook k0s_shutdown_cluster.yaml -i inventory/ --user opvolger -vv
+
+# only setup netwerk for 1 machine
+ansible-playbook k0s_setup_network.yaml -i inventory/ --user opvolger -vv --limit "supermicro.cluster,"
 ```

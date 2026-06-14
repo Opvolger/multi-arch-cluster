@@ -8,6 +8,21 @@
         regexp: "{{ network.interface }}"
         state: absent
 
+    - name: Fix bug for NIC e1000e
+      when: network.e1000e | bool
+      block:
+        - name: Installed networkd-dispatcher
+          ansible.builtin.apt:
+            name:
+              - networkd-dispatcher
+
+        - name: copy 50-disable-tso
+          ansible.builtin.template:
+            src: 50-disable-tso
+            dest: /etc/networkd-dispatcher/routable.d/50-disable-tso
+            owner: root
+            group: root
+            mode: '0755'
     - name: Configure netplan
       block:
         - name: Template a file to /etc/netplan/01-network-manager-all.yaml

@@ -41,6 +41,7 @@ all:
             k0sBinaryPath: /home/opvolger/k0s-amd64
             noTaints: true
           network:
+            e1000e: true
             ipv4: 192.168.8.13
             interface: eno1
           arch: amd64
