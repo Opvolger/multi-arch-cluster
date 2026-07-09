@@ -8,9 +8,9 @@ spec:
 {% for host in groups["k0s"] %}
   - ssh:
       address: {{ hostvars[host].ansible_host }}
-      user: opvolger
+      user: {{ ansible_user }}
     role: {{ hostvars[host].k8s.role }}
-    k0sBinaryPath: {{ hostvars[host].k8s.k0sBinaryPath }}
+    k0sBinaryPath: {{ hostvars[host].k0s_binary_path }}
 {% if hostvars[host].k8s.noTaints is defined %}
     noTaints: {{ hostvars[host].k8s.noTaints }}
 {% endif %}
@@ -61,12 +61,142 @@ spec:
               url: https://metallb.github.io/metallb
             - name: csi-driver-smb
               url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+            - name: csi-driver-nfs
+              url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
             charts:
+            - name: kube-prometheus-stack-v2
+              namespace: monitoring
+              chartname: prometheus-community/kube-prometheus-stack
+              version: "85.2.0" # Use the latest stable version
+              values: |
+                grafana:
+                  ingress:
+                    enabled: true
+                    ingressClassName: traefik
+                    hosts:
+                      - grafana.k8s.opvolger.eu
+                    annotations:
+                      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+                prometheus-node-exporter:
+                  image:
+                    # riscv64 images not supported on quay.io, use docker.io/prom
+                    registry: docker.io
+                    repository: prom/node-exporter
+                crds:
+                  upgradeJob:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                alertmanager:
+                  alertmanagerSpec:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                prometheusOperator:
+                  # image is there for amd64 and arm64, not riscv64 (yet)
+                  affinity:
+                    nodeAffinity:
+                      requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                          - matchExpressions:
+                              - key: kubernetes.io/arch
+                                operator: In
+                                values:
+                                  - amd64
+                                  - arm64
+                  admissionWebhooks:
+                    deployment:
+                      # image is there for amd64 and arm64, not riscv64 (yet)
+                      affinity:
+                        nodeAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                            nodeSelectorTerms:
+                              - matchExpressions:
+                                  - key: kubernetes.io/arch
+                                    operator: In
+                                    values:
+                                      - amd64
+                                      - arm64
+                    patch:
+                      # image is there for amd64 and arm64, not riscv64 (yet)
+                      affinity:
+                        nodeAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                            nodeSelectorTerms:
+                              - matchExpressions:
+                                  - key: kubernetes.io/arch
+                                    operator: In
+                                    values:
+                                      - amd64
+                                      - arm64
+                prometheus:
+                  prometheusSpec:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                thanosRuler:
+                  thanosRulerSpec:
+                    # image is there for amd64 and arm64, not riscv64 (yet)
+                    affinity:
+                      nodeAffinity:
+                        requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                            - matchExpressions:
+                                - key: kubernetes.io/arch
+                                  operator: In
+                                  values:
+                                    - amd64
+                                    - arm64
+                kubeEtcd:
+                  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+                    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
+                kubeControllerManager:
+                  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+                    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
+                kubeScheduler:
+                  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+                    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
             # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-controller:v0.15.3  --push --file controller/Dockerfile .
             # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.15.3  --push --file speaker/Dockerfile .
             # helm install metallb metallb/metallb --values templates/metallb.yaml -n metallb-system
             # helm uninstall metallb -n metallb-system
-            # kubectl apply -f templates/ip-pool.yaml -n metallb-system
+            # kubectl apply -f ip-pool.yaml -n metallb-system
             # https://oneuptime.com/blog/post/2026-02-09-kube-proxy-strict-arp-metallb/view
             - name: metallb
               chartname: metallb/metallb
@@ -85,8 +215,6 @@ spec:
                     # pullPolicy: Always
                     repository: opvolger/metallb-speaker
                     tag: v0.15.3
-            # helm install traefik traefik/traefik --values templates/traefik.yaml -n traefik-system --version 39.0.7
-            # helm uninstall traefik -n traefik-system
             # https://oneuptime.com/blog/post/2026-01-07-metallb-traefik-ingress/view
             - name: traefik
               chartname: traefik/traefik
@@ -134,6 +262,43 @@ spec:
                     kubelet: /var/lib/k0s/kubelet
                 windows:
                     kubelet: 'C:\\var\\lib\\k0s\\kubelet'
+            - name: csi-driver-nfs
+              version: 4.13.2
+              namespace: kube-system
+              chartname: csi-driver-nfs/csi-driver-nfs
+              values: |
+                image:
+                    baseRepo: opvolger
+                    nfs:
+                        repository: /nfsplugin
+                        tag: v4.13.2
+                        pullPolicy: IfNotPresent
+                    csiProvisioner:
+                        repository: /csi-provisioner
+                        tag: 6.1-canary
+                        pullPolicy: IfNotPresent
+                    csiResizer:
+                        repository: /csi-resizer
+                        tag: 2.0-canary
+                        pullPolicy: IfNotPresent
+                    csiSnapshotter:
+                        repository: /csi-snapshotter
+                        tag: 8.5-canary
+                        pullPolicy: IfNotPresent
+                    livenessProbe:
+                        repository: /livenessprobe
+                        tag: 2.17-canary
+                        pullPolicy: IfNotPresent
+                    nodeDriverRegistrar:
+                        repository: /csi-node-driver-registrar
+                        tag: 2.15-canary
+                        pullPolicy: IfNotPresent
+                    externalSnapshotter:
+                        repository: /snapshot-controller
+                        tag: 8.5-canary
+                        pullPolicy: IfNotPresent
+                # for k0s change the kubelet path
+                kubeletDir: /var/lib/k0s/kubelet
             concurrencyLevel: 5
         konnectivity:
           adminPort: 8133
@@ -159,7 +324,7 @@ spec:
         storage:
           type: etcd
         telemetry:
-          enabled: false
+          enabled: true
   options:
     wait:
       enabled: false # raspberry pi 3 is slow! timeout

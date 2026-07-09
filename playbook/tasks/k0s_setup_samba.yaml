@@ -47,7 +47,7 @@
   ansible.builtin.shell:
     cmd: |
       set -o pipefail #
-      (echo '{{ sambaPassword }}'; echo '{{ sambaPassword }}') | smbpasswd -s -a persistentvolume
+      (echo '{{ samba_password }}'; echo '{{ samba_password }}') | smbpasswd -s -a persistentvolume
     executable: /bin/bash
   no_log: true
   changed_when: true

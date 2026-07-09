@@ -1,0 +1,33 @@
+global:
+  storageClass: smb
+hooks:
+  enableSelectorLabelsFix: False # can't set nodeSelector of Job https://github.com/OctopusDeploy/helm-charts/pull/600
+nodeSelector:
+  kubernetes.io/arch: amd64
+octopus:
+  masterKey: cHtQOEsubXdbVDUpdVRqIA== # only demo no real secret
+  username: opvolger
+  password: Ab12345!Ab12345!
+  email: bas@opvolger.net
+  service:
+    type: LoadBalancer
+  extraVolumes:
+    git:
+      type: emptyDir
+      mountPath: /root/.octopus/OctopusServer/Server/Git/
+      sizeLimit: 10Gi # Set to some upper bound limit to protect from unbound usage
+  # this is bad, running as SA!
+  databaseConnectionString: "Server=tcp:mssql,1433;Initial Catalog=OctopusDeploy;Persist Security Info=False;User ID=sa;Password=Ab12345!Ab12345!;Encrypt=True;Connection Timeout=30;"
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    path: /
+    hosts:
+      - "octopus.opvolger.eu"
+mssql:
+  enabled: true
+  SA_PASSWORD: "Ab12345!Ab12345!"
+  nodeSelector:
+    kubernetes.io/arch: amd64
