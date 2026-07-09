@@ -9,7 +9,9 @@
         state: absent
 
     - name: Fix bug for NIC e1000e
-      when: network.e1000e | bool
+      when: 
+       - network.e1000e is defined
+       - network.e1000e | bool
       block:
         - name: Installed networkd-dispatcher
           ansible.builtin.apt:
@@ -23,6 +25,7 @@
             owner: root
             group: root
             mode: '0755'
+
     - name: Configure netplan
       block:
         - name: Template a file to /etc/netplan/01-network-manager-all.yaml

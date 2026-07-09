@@ -1,74 +1,74 @@
 ---
 all:
   children:
+    ungrouped:
+      hosts:
+        localhost:
+          k0sctl_download_url: https://github.com/k0sproject/k0sctl/releases/download/v0.32.1/k0sctl-linux-amd64
+          ansible_connection: local
+    riscv64:
+      hosts:
+        sfvf2lite.cluster:
+        sfvf2lite2.cluster:
     linux:
+      vars:
+        k0s_binary_path_without_arch: /home/opvolger/Downloads/k0s-v1.37.0-alpha.1+k0s.0-
+        helm_version: v4.2.2
       hosts:
         rp5.cluster:
           ansible_host: 192.168.8.10 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
             role: controller+worker
-            k0sBinaryPath: /home/opvolger/k0s-arm64
             noTaints: true
           network:
             ipv4: 192.168.8.10
             interface: eth0
-          arch: arm64
         rp3b.cluster:
           ansible_host: 192.168.8.11 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
             role: worker
-            k0sBinaryPath: /home/opvolger/k0s-arm64
           network:
             ipv4: 192.168.8.11
             interface: eth0
-          arch: arm64
         sfvf2lite.cluster:
           ansible_host: 192.168.8.12 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
             role: controller+worker
-            k0sBinaryPath: /home/opvolger/k0s-riscv64
             noTaints: true
             environment:
               ETCD_UNSUPPORTED_ARCH: riscv64
           network:
             ipv4: 192.168.8.12
             interface: end0
-          arch: riscv64
         nuc.cluster:
           ansible_host: 192.168.8.13 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
             role: controller+worker
-            k0sBinaryPath: /home/opvolger/k0s-amd64
             noTaints: true
           network:
             e1000e: true
             ipv4: 192.168.8.13
             interface: eno1
-          arch: amd64
         supermicro.cluster:
           ansible_host: 192.168.8.14 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
             role: worker
-            k0sBinaryPath: /home/opvolger/k0s-amd64
           network:
             ipv4: 192.168.8.14
             interface: eno1
-          arch: amd64
         sfvf2lite2.cluster:
           ansible_host: 192.168.8.15 # first set this to dhcp address and run k0s_setup_network.yaml
           k8s:
             role: worker
-            k0sBinaryPath: /home/opvolger/k0s-riscv64
             environment:
               ETCD_UNSUPPORTED_ARCH: riscv64
           network:
             ipv4: 192.168.8.15
             interface: end0
-          arch: riscv64
     samba:
       hosts:
         nuc.cluster:
-          sambaPassword: Ab12345!
+          samba_password: Ab12345!
     k0s:
       hosts:
         nuc.cluster:

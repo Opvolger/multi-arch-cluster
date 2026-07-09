@@ -3,30 +3,38 @@
 - name: Setup login with ssh and with sudo password
   hosts: k0s
   tasks:
+
+    - name: Get current user info
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        state: present
+      register: user_info
+      check_mode: true  # Important, otherwise user will be created
+
     - name: Creates directory .ssh
       ansible.builtin.file:
-        path: /home/opvolger/.ssh
+        path: "{{ user_info.home }}/.ssh"
         state: directory
-        owner: opvolger
-        group: opvolger
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: '0700'
 
     - name: Copy id_rsa.pub to authorized_keys
       ansible.builtin.copy:
-        src: "/home/opvolger/.ssh/id_rsa.pub"
-        dest: "/home/opvolger/.ssh/authorized_keys"
-        owner: opvolger
-        group: opvolger
+        src: "{{ user_info.home }}/.ssh/id_rsa.pub"
+        dest: "{{ user_info.home }}/.ssh/authorized_keys"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: '0600'
 
-    - name: User Opvolger doesn't need password for sudo
+    - name: User doesn't need password for sudo
       become: true
       ansible.builtin.blockinfile:
         state: present
         insertafter: EOF
         dest: /etc/sudoers
         content: |
-          opvolger ALL=(ALL) NOPASSWD: ALL
+          {{ ansible_user }} ALL=(ALL) NOPASSWD: ALL
 
 # samba setup for persistent volume with samba
 - name: Setup for samba

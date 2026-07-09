@@ -1,0 +1,61 @@
+---
+- name: Update packages
+  hosts: k0s
+  become: true
+  tasks:
+    - name: Install and upgrade packages
+      ansible.builtin.include_tasks: tasks/k0s_install_stuff.yaml
+
+- name: Install latest kernel for riscv64
+  hosts: riscv64
+  tasks:
+
+    - name: Create debian-backports.sources
+      become: true
+      ansible.builtin.copy:
+        content: |
+          Types: deb deb-src
+          URIs: http://deb.debian.org/debian
+          Suites: trixie-backports
+          Components: main
+        dest: "/etc/apt/sources.list.d/debian-backports.sources"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install latest backports kernel
+      become: true
+      ansible.builtin.apt:
+        name:
+          - linux-image-riscv64
+          - linux-headers-riscv64
+        state: present
+        default_release: trixie-backports
+        update_cache: true
+
+    - name: Get latest installed kernel
+      become: true
+      ansible.builtin.shell: ls /lib/modules/ -rt | tail -n 1
+      register: last_version_command
+
+    - name: Set last_kernel_version
+      ansible.builtin.set_fact:
+        last_kernel_version: "{{ last_version_command.stdout }}"
+
+    - name: Create new boot.cmd
+      become: true
+      ansible.builtin.template:
+        src: templates/boot.cmd
+        dest: "/boot.cmd"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Update boot.scr for u-boot
+      become: true
+      ansible.builtin.shell: sudo mkimage -C none -A riscv -T script -d /boot.cmd /boot.scr
+      changed_when: true
+
+- name: Reboot after update packages
+  ansible.builtin.import_playbook: k0s_reboot_cluster.yaml
+

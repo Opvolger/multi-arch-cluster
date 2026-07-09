@@ -8,9 +8,9 @@ spec:
 {% for host in groups["k0s"] %}
   - ssh:
       address: {{ hostvars[host].ansible_host }}
-      user: opvolger
+      user: {{ ansible_user }}
     role: {{ hostvars[host].k8s.role }}
-    k0sBinaryPath: {{ hostvars[host].k8s.k0sBinaryPath }}
+    k0sBinaryPath: {{ hostvars[host].k0s_binary_path }}
 {% if hostvars[host].k8s.noTaints is defined %}
     noTaints: {{ hostvars[host].k8s.noTaints }}
 {% endif %}
