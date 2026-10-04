@@ -1,0 +1,3 @@
+#!/bin/bash
+# Disable TCP Segmentation Offload
+/sbin/ethtool -K {{ network.interface }} tso off gso off

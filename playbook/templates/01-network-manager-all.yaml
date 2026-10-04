@@ -2,6 +2,11 @@ network:
   version: 2
   ethernets:
     {{ network.interface }}:
+{% if network.e1000e is defined and network.e1000e %}
+      # bug fix for Server kernel: e1000e 0000:00:19.0 eno1: Detected Hardware Unit Hang:
+      generic-segmentation-offload: false
+      tcp-segmentation-offload: false
+{% endif %}
       dhcp4: no
       addresses:
         - {{ network.ipv4 }}/24
