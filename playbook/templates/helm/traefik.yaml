@@ -4,3 +4,14 @@ service:
   annotations:
     # Request a specific IP from MetalLB's pool
     metallb.io/loadBalancerIPs: "192.168.8.50"
+providers:
+  kubernetesCRD:
+    # collision-safe router/middleware/service names (only dashboard.yaml uses CRDs, refers to api@internal)
+    safeNaming: true
+additionalArguments:
+  # drop request headers whose name aliases another (X_Auth_User / X.Auth.User -> X-Auth-User) against header spoofing
+  # https://doc.traefik.io/traefik/v3.7/migrate/v3/#aliasheadersstrategy
+  - --entryPoints.web.http.aliasHeadersStrategy=delete
+  - --entryPoints.websecure.http.aliasHeadersStrategy=delete
+  - --entryPoints.traefik.http.aliasHeadersStrategy=delete
+  - --entryPoints.metrics.http.aliasHeadersStrategy=delete
