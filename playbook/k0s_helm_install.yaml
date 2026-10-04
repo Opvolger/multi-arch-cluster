@@ -59,7 +59,7 @@
     # always use the kubeconfig of k0sctl, never the default ~/.kube/config context
     - name: Get kubeconfig from k0sctl
       ansible.builtin.shell: |
-        k0sctl kubeconfig admin --config k0sctl.yaml > {{ kubeconfig_path }}
+        {{ lookup('ansible.builtin.env', 'HOME') }}/.local/bin/k0sctl kubeconfig admin --config k0sctl.yaml > {{ kubeconfig_path }}
         chmod 600 {{ kubeconfig_path }}
       args:
         chdir: "{{ playbook_dir }}/temp"

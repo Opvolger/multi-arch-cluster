@@ -39,28 +39,38 @@
         group: "{{ ansible_user }}"
         mode: '0644'
 
-    - name: Check if /home/????/.local/bin/k0sctl exists
-      ansible.builtin.stat:
-        path: "{{ user_info.home }}/.local/bin/k0sctl"
+    - name: Get installed k0sctl version (if installed)
+      ansible.builtin.command: "{{ user_info.home }}/.local/bin/k0sctl version"
       changed_when: false
-      register: k0sctl_bin
+      failed_when: false
+      register: k0sctl_installed
 
-    - name: Install k0sctl
-      ansible.builtin.shell: |
-        wget {{ k0sctl_download_url }}
-        mv {{ playbook_dir }}/temp/k0sctl-linux-amd64 {{ user_info.home }}/.local/bin/k0sctl
-        chmod +x {{ user_info.home }}/.local/bin/k0sctl
-      args:
-        chdir: "{{ playbook_dir }}/temp"
-        executable: /bin/bash
-      when: not k0sctl_bin.stat.exists
+    # version is taken from k0sctl_download_url (.../download/v0.33.1/k0sctl-linux-amd64)
+    - name: Set k0sctl versions
+      ansible.builtin.set_fact:
+        k0sctl_wanted_version: "{{ k0sctl_download_url | regex_search('/download/(v[^/]+)/', '\\1') | first }}"
+        k0sctl_installed_version: "{{ k0sctl_installed.stdout | default('') | regex_search('version: (v\\S+)', '\\1') | default([''], true) | first }}"
+
+    - name: Create directory ~/.local/bin
+      ansible.builtin.file:
+        path: "{{ user_info.home }}/.local/bin"
+        state: directory
+        mode: '0755'
+
+    - name: Install or update k0sctl ({{ k0sctl_installed_version | default('none', true) }} -> {{ k0sctl_wanted_version }})
+      ansible.builtin.get_url:
+        url: "{{ k0sctl_download_url }}"
+        dest: "{{ user_info.home }}/.local/bin/k0sctl"
+        mode: '0755'
+        force: true
+      when: k0sctl_installed_version != k0sctl_wanted_version
 
     - name: Setup nodes with k0sctl
       block:
           #  ssh: handshake failed ? ssh-keygen -R [ipv4] and ssh [ipv4]
         - name: Setup nodes with k0sctl
           ansible.builtin.shell: |
-            k0sctl apply --config k0sctl.yaml
+            {{ user_info.home }}/.local/bin/k0sctl apply --config k0sctl.yaml
           args:
             chdir: "{{ playbook_dir }}/temp"
             executable: /bin/bash
@@ -72,7 +82,7 @@
 
     - name: Get config values
       ansible.builtin.shell: |
-        k0sctl kubeconfig admin --config k0sctl.yaml
+        {{ user_info.home }}/.local/bin/k0sctl kubeconfig admin --config k0sctl.yaml
       args:
         chdir: "{{ playbook_dir }}/temp"
         executable: /bin/bash

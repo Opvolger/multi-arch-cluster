@@ -34,7 +34,7 @@
             update_cache: true
 
         - name: Get latest installed kernel
-          ansible.builtin.shell: ls /lib/modules/ -rt | tail -n 1
+          ansible.builtin.shell: ls /lib/modules/ | sort -V | tail -n 1
           register: last_version_command
 
         - name: Set last_kernel_version
