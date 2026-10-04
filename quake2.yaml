@@ -40,8 +40,9 @@ spec:
           mountPath: /yquake2/.yq2
         imagePullPolicy: IfNotPresent
       restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/os: linux
       # # image is there for riscv64/amd64 and arm64
-      # nodeSelector:
       #   kubernetes.io/arch: riscv64
       #   # kubernetes.io/arch: amd64
       #   # kubernetes.io/arch: arm64

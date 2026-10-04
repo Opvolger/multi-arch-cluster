@@ -44,6 +44,8 @@ spec:
         imagePullPolicy: IfNotPresent
       restartPolicy: Always
       # image is there for amd64 and arm64, not riscv64 (yet)
+      nodeSelector:
+        kubernetes.io/os: linux
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
