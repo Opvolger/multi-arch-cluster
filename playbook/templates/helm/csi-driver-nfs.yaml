@@ -1,0 +1,33 @@
+---
+image:
+    baseRepo: opvolger
+    nfs:
+        repository: /nfsplugin
+        tag: v4.13.4
+        pullPolicy: IfNotPresent
+    csiProvisioner:
+        repository: /csi-provisioner
+        tag: 6.3-canary
+        pullPolicy: IfNotPresent
+    csiResizer:
+        repository: /csi-resizer
+        tag: 2.3-canary
+        pullPolicy: IfNotPresent
+    csiSnapshotter:
+        repository: /csi-snapshotter
+        tag: 8.6-canary
+        pullPolicy: IfNotPresent
+    livenessProbe:
+        repository: /livenessprobe
+        tag: 2.20-canary
+        pullPolicy: IfNotPresent
+    nodeDriverRegistrar:
+        repository: /csi-node-driver-registrar
+        tag: 2.18-canary
+        pullPolicy: IfNotPresent
+    externalSnapshotter:
+        repository: /snapshot-controller
+        tag: 8.6-canary
+        pullPolicy: IfNotPresent
+# for k0s change the kubelet path
+kubeletDir: /var/lib/k0s/kubelet

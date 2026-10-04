@@ -1,0 +1,82 @@
+---
+# Install/upgrade helm charts on the k0s cluster (previously in k0sctl.yaml extensions.helm)
+# run k0s_install_update.yaml first (temp/k0sctl.yaml is needed for the kubeconfig)
+- name: Install helm charts
+  hosts: localhost
+  vars:
+    kubeconfig_path: "{{ playbook_dir }}/temp/kubeconfig"
+    helm_repositories:
+      - name: prometheus-community
+        url: https://prometheus-community.github.io/helm-charts
+      - name: traefik
+        url: https://traefik.github.io/charts
+      - name: metallb
+        url: https://metallb.github.io/metallb
+      - name: csi-driver-smb
+        url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+      - name: csi-driver-nfs
+        url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+    helm_charts:
+      - name: kube-prometheus-stack-v2
+        chartname: prometheus-community/kube-prometheus-stack
+        version: "85.2.0"
+        namespace: monitoring
+        values_file: templates/helm/kube-prometheus-stack.yaml
+      # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-controller:v0.15.3  --push --file controller/Dockerfile .
+      # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.15.3  --push --file speaker/Dockerfile .
+      # kubectl apply -f ip-pool.yaml -n metallb-system
+      # https://oneuptime.com/blog/post/2026-02-09-kube-proxy-strict-arp-metallb/view
+      - name: metallb
+        chartname: metallb/metallb
+        version: "0.15.3"
+        namespace: metallb-system
+        values_file: templates/helm/metallb.yaml
+      # https://oneuptime.com/blog/post/2026-01-07-metallb-traefik-ingress/view
+      - name: traefik
+        chartname: traefik/traefik
+        version: "39.0.7"
+        namespace: traefik-system
+        values_file: templates/helm/traefik.yaml
+      - name: csi-driver-smb
+        chartname: csi-driver-smb/csi-driver-smb
+        version: "1.20.3"
+        namespace: kube-system
+        values_file: templates/helm/csi-driver-smb.yaml
+      - name: csi-driver-nfs
+        chartname: csi-driver-nfs/csi-driver-nfs
+        version: "4.13.4"
+        namespace: kube-system
+        values_file: templates/helm/csi-driver-nfs.yaml
+  tasks:
+
+    # always use the kubeconfig of k0sctl, never the default ~/.kube/config context
+    - name: Get kubeconfig from k0sctl
+      ansible.builtin.shell: |
+        k0sctl kubeconfig admin --config k0sctl.yaml > {{ kubeconfig_path }}
+        chmod 600 {{ kubeconfig_path }}
+      args:
+        chdir: "{{ playbook_dir }}/temp"
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Add helm repositories
+      kubernetes.core.helm_repository:
+        name: "{{ item.name }}"
+        repo_url: "{{ item.url }}"
+        force_update: true
+      loop: "{{ helm_repositories }}"
+
+    - name: Install or upgrade helm charts
+      kubernetes.core.helm:
+        kubeconfig: "{{ kubeconfig_path }}"
+        name: "{{ item.name }}"
+        chart_ref: "{{ item.chartname }}"
+        chart_version: "{{ item.version }}"
+        release_namespace: "{{ item.namespace }}"
+        create_namespace: true
+        update_repo_cache: false
+        values: "{{ lookup('ansible.builtin.template', item.values_file) | from_yaml }}"
+        wait: false  # raspberry pi 3 is slow! timeout
+      loop: "{{ helm_charts }}"
+      loop_control:
+        label: "{{ item.name }}"

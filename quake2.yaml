@@ -52,6 +52,9 @@ kind: Service
 metadata:
   name: basm-quake2
   namespace: games
+  annotations:
+    # fixed IP from MetalLB's pool
+    metallb.io/loadBalancerIPs: "192.168.8.51"
   labels:
     app.kubernetes.io/instance: basm-quake2
 status:

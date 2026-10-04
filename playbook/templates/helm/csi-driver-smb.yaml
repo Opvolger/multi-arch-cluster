@@ -1,0 +1,32 @@
+---
+image:
+  baseRepo: opvolger
+  smb:
+    repository: /smbplugin # done
+    tag: v1.20.3
+    pullPolicy: IfNotPresent
+  csiProvisioner:
+    repository: /csi-provisioner # done
+    tag: 6.3-canary
+    pullPolicy: IfNotPresent
+  csiResizer:
+    repository: /csi-resizer # done
+    tag: 2.3-canary
+    pullPolicy: IfNotPresent
+  livenessProbe:
+    repository: /livenessprobe # done
+    tag: 2.20-canary
+    pullPolicy: IfNotPresent
+  nodeDriverRegistrar:
+    repository: /csi-node-driver-registrar  # done
+    tag: 2.18-canary
+    pullPolicy: IfNotPresent
+  csiproxy:
+    repository: ghcr.io/kubernetes-sigs/sig-windows/csi-proxy  # not needed only windows
+    tag: v1.1.2
+    pullPolicy: IfNotPresent
+# for k0s change the kubelet path
+linux:
+    kubelet: /var/lib/k0s/kubelet
+windows:
+    kubelet: 'C:\\var\\lib\\k0s\\kubelet'

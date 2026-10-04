@@ -1,0 +1,124 @@
+---
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - grafana.k8s.opvolger.eu
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+prometheus-node-exporter:
+  image:
+    # riscv64 images not supported on quay.io, use docker.io/prom
+    registry: docker.io
+    repository: prom/node-exporter
+crds:
+  upgradeJob:
+    # image is there for amd64 and arm64, not riscv64 (yet)
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - amd64
+                    - arm64
+alertmanager:
+  alertmanagerSpec:
+    # image is there for amd64 and arm64, not riscv64 (yet)
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - amd64
+                    - arm64
+prometheusOperator:
+  # image is there for amd64 and arm64, not riscv64 (yet)
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                  - amd64
+                  - arm64
+  admissionWebhooks:
+    deployment:
+      # image is there for amd64 and arm64, not riscv64 (yet)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                      - arm64
+    patch:
+      # image is there for amd64 and arm64, not riscv64 (yet)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                      - arm64
+prometheus:
+  prometheusSpec:
+    # image is there for amd64 and arm64, not riscv64 (yet)
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - amd64
+                    - arm64
+thanosRuler:
+  thanosRulerSpec:
+    # image is there for amd64 and arm64, not riscv64 (yet)
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - amd64
+                    - arm64
+kubeEtcd:
+  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
+kubeControllerManager:
+  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}
+kubeScheduler:
+  endpoints:
+{% for host in groups["k0s"] %}
+{% if hostvars[host].k8s.noTaints is defined %}
+    - {{ hostvars[host].ansible_host }}
+{% endif %}
+{% endfor %}

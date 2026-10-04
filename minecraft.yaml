@@ -62,6 +62,9 @@ kind: Service
 metadata:
   name: basm-minecraft
   namespace: games
+  annotations:
+    # fixed IP from MetalLB's pool
+    metallb.io/loadBalancerIPs: "192.168.8.52"
   labels:
     app.kubernetes.io/instance: basm-minecraft
 status:

@@ -6,6 +6,7 @@ all:
         localhost:
           k0sctl_download_url: https://github.com/k0sproject/k0sctl/releases/download/v0.32.1/k0sctl-linux-amd64
           ansible_connection: local
+          k0s_version: v1.37.0-alpha.1+k0s.0  # used in templates/k0sctl.yaml (rendered on localhost)
     riscv64:
       hosts:
         sfvf2lite.cluster:
