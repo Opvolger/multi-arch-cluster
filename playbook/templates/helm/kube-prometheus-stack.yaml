@@ -7,11 +7,29 @@ grafana:
       - grafana.k8s.opvolger.eu
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-prometheus-node-exporter:
-  image:
-    # riscv64 images not supported on quay.io, use docker.io/prom
-    registry: docker.io
-    repository: prom/node-exporter
+  # image is there for amd64 and arm64, not riscv64 (yet)
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                  - amd64
+                  - arm64
+kube-state-metrics:
+  # image is there for amd64 and arm64, not riscv64 (yet)
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                  - amd64
+                  - arm64
 crds:
   upgradeJob:
     # image is there for amd64 and arm64, not riscv64 (yet)

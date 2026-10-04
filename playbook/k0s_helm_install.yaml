@@ -21,23 +21,24 @@
     helm_charts:
       - name: kube-prometheus-stack-v2
         chartname: prometheus-community/kube-prometheus-stack
-        version: "85.2.0"
+        version: "91.9.0"
         namespace: monitoring
+        upgrade_crds: true  # helm doesn't upgrade crds/, see task "Upgrade CRDs"
         values_file: templates/helm/kube-prometheus-stack.yaml
-      # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-controller:v0.15.3  --push --file controller/Dockerfile .
-      # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.15.3  --push --file speaker/Dockerfile .
+      # opvolger/metallb-* images (riscv64): see README.md "metallb images"
       # ip-pool: see k0s_install_yaml_in_cluster.yaml
       # https://oneuptime.com/blog/post/2026-02-09-kube-proxy-strict-arp-metallb/view
       - name: metallb
         chartname: metallb/metallb
-        version: "0.15.3"
+        version: "0.16.1"
         namespace: metallb-system
         values_file: templates/helm/metallb.yaml
       # https://oneuptime.com/blog/post/2026-01-07-metallb-traefik-ingress/view
       - name: traefik
         chartname: traefik/traefik
-        version: "39.0.7"
+        version: "41.6.1"
         namespace: traefik-system
+        upgrade_crds: true
         values_file: templates/helm/traefik.yaml
       - name: csi-driver-smb
         chartname: csi-driver-smb/csi-driver-smb
@@ -72,6 +73,18 @@
         repo_url: "{{ item.url }}"
         force_update: true
       loop: "{{ helm_repositories }}"
+
+    # helm only installs crds/ on first install, never upgrades them
+    - name: Upgrade CRDs
+      ansible.builtin.shell: |
+        set -o pipefail
+        helm show crds {{ item.chartname }} --version {{ item.version }} \
+          | kubectl --kubeconfig {{ kubeconfig_path }} apply --server-side --force-conflicts -f -
+      args:
+        executable: /bin/bash
+      loop: "{{ helm_charts | selectattr('upgrade_crds', 'defined') | list }}"
+      loop_control:
+        label: "{{ item.name }}"
 
     - name: Install or upgrade helm charts
       kubernetes.core.helm:

@@ -14,7 +14,7 @@ all:
     linux:
       vars:
         k0s_binary_path_without_arch: /home/opvolger/Downloads/k0s-v1.37.0-alpha.1+k0s.0-
-        helm_version: v4.2.2
+        helm_version: v4.3.0
       hosts:
         rp5.cluster:
           ansible_host: 192.168.8.10 # first set this to dhcp address and run k0s_setup_network.yaml

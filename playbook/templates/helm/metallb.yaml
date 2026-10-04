@@ -3,11 +3,13 @@ controller:
   image:
     # pullPolicy: Always
     repository: opvolger/metallb-controller
-    tag: v0.15.3
+    tag: v0.16.1
 speaker:
   frr:
     enabled: false # no riscv64 (build)
   image:
     # pullPolicy: Always
     repository: opvolger/metallb-speaker
-    tag: v0.15.3
+    tag: v0.16.1
+frrk8s:
+  enabled: false # BGP backend (default since 0.16), not needed for L2 and no riscv64 image

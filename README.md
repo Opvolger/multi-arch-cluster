@@ -12,6 +12,16 @@ kubectl attach -it -n games deploy/basm-quake2
 kubectl attach -it -n games deploy/basm-minecraft
  ```
 
+## metallb images
+
+```bash
+git clone -b v0.16.1 https://github.com/metallb/metallb.git
+cd metallb
+docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-controller:v0.16.1  --push --file controller/Dockerfile .
+docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.16.1  --push --file speaker/Dockerfile .
+```
+
+
 ## Jenkins
 
 Jenkins is installed with `k0s_helm_install.yaml` (values: [playbook/templates/helm/jenkins.yaml](playbook/templates/helm/jenkins.yaml)).
