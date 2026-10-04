@@ -1,18 +1,9 @@
 agent:
   defaultsProviderTemplate: default
-  image:
-    repository: "jenkins/inbound-agent"
-    tag: "latest" # default has no riscv64 support, latest has!
 controller:
   admin:
     username: opvolger
     password: demodemo
-  sidecars:
-    configAutoReload:
-      image:
-        repository: opvolger/k8s-sidecar
-        tag: 2.7.3-4
-      imagePullPolicy: IfNotPresent
   ingress:
     enabled: true
     hostName: "jenkins.k8s.opvolger.eu"

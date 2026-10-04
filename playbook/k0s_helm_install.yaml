@@ -16,6 +16,8 @@
         url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
       - name: csi-driver-nfs
         url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+      - name: jenkins
+        url: https://charts.jenkins.io
     helm_charts:
       - name: kube-prometheus-stack-v2
         chartname: prometheus-community/kube-prometheus-stack
@@ -24,7 +26,7 @@
         values_file: templates/helm/kube-prometheus-stack.yaml
       # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-controller:v0.15.3  --push --file controller/Dockerfile .
       # docker buildx build --platform linux/amd64,linux/arm64,linux/riscv64 --tag opvolger/metallb-speaker:v0.15.3  --push --file speaker/Dockerfile .
-      # kubectl apply -f ip-pool.yaml -n metallb-system
+      # ip-pool: see k0s_install_yaml_in_cluster.yaml
       # https://oneuptime.com/blog/post/2026-02-09-kube-proxy-strict-arp-metallb/view
       - name: metallb
         chartname: metallb/metallb
@@ -47,6 +49,11 @@
         version: "4.13.4"
         namespace: kube-system
         values_file: templates/helm/csi-driver-nfs.yaml
+      - name: jenkins
+        chartname: jenkins/jenkins
+        version: "5.9.65"
+        namespace: jenkins
+        values_file: templates/helm/jenkins.yaml
   tasks:
 
     # always use the kubeconfig of k0sctl, never the default ~/.kube/config context

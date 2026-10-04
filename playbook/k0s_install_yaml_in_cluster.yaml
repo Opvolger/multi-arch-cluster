@@ -1,0 +1,78 @@
+---
+# Apply the yaml files from files/ to the k0s cluster
+# run k0s_helm_install.yaml first (metallb and traefik CRDs and csi-driver-smb are needed)
+- name: Apply yaml files in cluster
+  hosts: localhost
+  vars:
+    kubeconfig_path: "{{ playbook_dir }}/temp/kubeconfig"
+  tasks:
+
+    # always use the kubeconfig of k0sctl, never the default ~/.kube/config context
+    - name: Get kubeconfig from k0sctl
+      ansible.builtin.shell: |
+        k0sctl kubeconfig admin --config k0sctl.yaml > {{ kubeconfig_path }}
+        chmod 600 {{ kubeconfig_path }}
+      args:
+        chdir: "{{ playbook_dir }}/temp"
+        executable: /bin/bash
+      changed_when: false
+
+    # metallb webhook is not ready directly after (re)install of metallb
+    - name: Apply MetalLB ip-pool
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        src: files/ip-pool.yaml
+        state: present
+        apply: true
+      register: ip_pool
+      until: ip_pool is not failed
+      retries: 12
+      delay: 10
+
+    - name: Apply traefik dashboard
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        src: files/dashboard.yaml
+        state: present
+        apply: true
+
+    # username / password for samba share (see tasks/k0s_setup_samba.yaml)
+    - name: Create secret smbcreds
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: smbcreds
+            namespace: kube-system
+          type: Opaque
+          stringData:
+            username: persistentvolume
+            password: "{{ hostvars[groups['samba'][0]].samba_password }}"
+      no_log: true
+
+    - name: Apply smb storageclass
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        src: files/smb.yaml
+        state: present
+        apply: true
+
+    - name: Create namespace games
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        name: games
+        kind: Namespace
+        state: present
+
+    - name: Apply games
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        src: "files/{{ item }}"
+        state: present
+        apply: true
+      loop:
+        - minecraft.yaml
+        - quake2.yaml

@@ -10,6 +10,10 @@ ansible-playbook k0s_init.yaml -i inventory/ --user opvolger -vv
 # reboot and update or install cluster
 ansible-playbook k0s_install_update.yaml -i inventory/ --user opvolger -vv
 
+# add some stuff in cluster (helm first: metallb, traefik and csi-driver-smb are needed for the yaml files)
+ansible-playbook k0s_helm_install.yaml -i inventory/ --user opvolger -vv
+ansible-playbook k0s_install_yaml_in_cluster.yaml -i inventory/ --user opvolger -vv
+
 # reset
 ansible-playbook k0s_reboot_cluster.yaml -i inventory/ --user opvolger -vv
 
