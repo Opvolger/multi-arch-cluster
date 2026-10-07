@@ -1,0 +1,20 @@
+---
+# factorio itself is installed with helm (see k0s_helm_install.yaml), this is the claim for the save games
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: basm-factorio
+  namespace: games
+  labels:
+    app.kubernetes.io/instance: basm-factorio
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  # comment this line the first time, set `persistentVolumeReclaimPolicy` of the `PersistentVolume` from `Delete` to `Retain` and change volumeName to correct one
+  volumeName: pvc-6fec2e74-805e-4f8e-92c9-bf90fd763d6c
+  # if PersistentVolumeClaim is deleted, delete `claimRef` in PersistentVolume and recreate the PersistentVolumeClaim
+  storageClassName: smb
+  volumeMode: Filesystem

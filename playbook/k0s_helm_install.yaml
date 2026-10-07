@@ -18,6 +18,8 @@
         url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
       - name: jenkins
         url: https://charts.jenkins.io
+      - name: factorio
+        url: https://sqljames.github.io/factorio-server-charts
     helm_charts:
       - name: kube-prometheus-stack-v2
         chartname: prometheus-community/kube-prometheus-stack
@@ -55,6 +57,12 @@
         version: "5.9.65"
         namespace: jenkins
         values_file: templates/helm/jenkins.yaml
+      # secret factorio-account and pvc basm-factorio are needed, see README.md (Game - Factorio)
+      - name: factorio
+        chartname: factorio/factorio-server-charts
+        version: "2.5.2"
+        namespace: games
+        values_file: templates/helm/factorio.yaml
   tasks:
 
     # always use the kubeconfig of k0sctl, never the default ~/.kube/config context

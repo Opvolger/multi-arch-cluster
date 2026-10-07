@@ -1,0 +1,48 @@
+fullnameOverride: basm-factorio
+# use the metallb LoadBalancer (fixed ip) instead of the host network of the node
+hostNetworkEnabled: false
+image:
+  repository: factoriotools/factorio
+  tag: "2.0.77"  # same version as steam (save game version)
+  pullPolicy: IfNotPresent
+# the chart has an affinity value, but doesn't use it in the deployment (only nodeSelector)
+# amd64 only: arm64 runs factorio with box64, this fails on rp5 (kernel with 16K page size)
+# and rp3b is too slow, there is no riscv64 image
+nodeSelector:
+  kubernetes.io/os: linux
+  kubernetes.io/arch: amd64
+service:
+  type: LoadBalancer
+  port: 34197  # default factorio port
+  annotations:
+    # fixed IP from MetalLB's pool
+    metallb.io/loadBalancerIPs: "192.168.8.53"
+persistence:
+  dataDir:
+    # see files/factorio.yaml
+    existingClaim: basm-factorio
+factorioServer:
+  save_name: wegrenner
+  load_latest_save: true
+  # save game wegrenner is without space age
+  enable_space_age: false
+account:
+  # see README.md (Game - Factorio)
+  accountSecret: factorio-account
+server_settings:
+  name: Factorio opvolger
+  description: Factorio running on the multi-arch k0s cluster
+  visibility:
+    public: false
+    lan: true
+serverPassword:
+  # see README.md (Game - Factorio)
+  passwordSecret: factorio-password
+# admins (copied to server-adminlist.json on every start, /promote in game is lost after a restart)
+admin_list:
+  - Opvolger
+  - wegrenner
+  - Wegrenner
+# no extra LoadBalancer for rcon (only in cluster / kubectl port-forward)
+rcon:
+  external: false

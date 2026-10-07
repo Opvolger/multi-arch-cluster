@@ -76,3 +76,4 @@
       loop:
         - minecraft.yaml
         - quake2.yaml
+        - factorio.yaml
