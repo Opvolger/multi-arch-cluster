@@ -21,7 +21,7 @@ spec:
           claimName: basm-minecraft
       containers:
       - name: basm-minecraft
-        image: opvolger/minecraft-server:latest
+        image: itzg/minecraft-server:latest
         stdin: true    # <--- Enables standard input
         tty: true      # <--- Enables TTY allocation
         env:

@@ -44,9 +44,12 @@ spec:
         #       image: quay.io/k0sproject/calico-kube-controllers
         #       version: v3.29.7-1
         api:
-          externalAddress: 192.168.8.1
+          externalAddress: {{ api.externalAddress }}
           k0sApiPort: 9443
           port: 6443
+{% if api.sans is defined %}
+          sans: {{ api.sans }}
+{% endif %}
         installConfig:
           users:
             etcdUser: etcd

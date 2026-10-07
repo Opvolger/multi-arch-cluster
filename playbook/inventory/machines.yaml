@@ -7,6 +7,10 @@ all:
           k0sctl_download_url: https://github.com/k0sproject/k0sctl/releases/download/v0.33.1/k0sctl-linux-amd64
           ansible_connection: local
           k0s_version: v1.37.0-alpha.1+k0s.0  # used in templates/k0sctl.yaml (rendered on localhost)
+          api:
+            externalAddress: 192.168.8.1 # travel router (ha-proxy)
+            sans:
+              - 192.168.2.204 # wlan
     riscv64:
       hosts:
         sfvf2lite.cluster:

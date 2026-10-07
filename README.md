@@ -2,6 +2,61 @@
 
 First run ansible playbook in playbook directory see [README.md](playbook/README.md)
 
+## GL iNet Travel Router
+
+Login with gui and go to `SYSTEM` -> `Advanced Settings`. Hit Go To LuCI, login again
+
+Go to `System` -> `Software` and filter on `haproxy` and install it!
+
+login with ssh to your router
+
+```bash
+OPENSSL_ENABLE_SHA1_SIGNATURES=1 ssh -oUserKnownHostsFile=/dev/null -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa root@192.168.8.1
+```
+
+vi /etc/haproxy.cfg and add
+
+```ini
+frontend kubeAPI_6443
+    bind :6443
+    mode tcp
+    default_backend kubeAPI_6443_backend
+
+frontend konnectivity_8132
+    bind :8132
+    mode tcp
+    default_backend konnectivity_8132_backend
+
+frontend controllerJoinAPI_9443
+    bind :9443
+    mode tcp
+    default_backend controllerJoinAPI_9443_backend
+
+backend kubeAPI_6443_backend
+    mode tcp
+    server k0s-rp5 192.168.8.10:6443 check check-ssl verify none
+    server k0s-nuc 192.168.8.13:6443 check check-ssl verify none
+    server k0s-vf2lite 192.168.8.12:6443 check check-ssl verify none
+backend konnectivity_8132_backend
+    mode tcp
+    server k0s-rp5 192.168.8.10:8132 check check-ssl verify none
+    server k0s-nuc 192.168.8.13:8132 check check-ssl verify none
+    server k0s-vf2lite 192.168.8.12:8132 check check-ssl verify none
+backend controllerJoinAPI_9443_backend
+    mode tcp
+    server k0s-rp5 192.168.8.10:9443 check check-ssl verify none
+    server k0s-nuc 192.168.8.13:9443 check check-ssl verify none
+    server k0s-vf2lite 192.168.8.12:9443 check check-ssl verify none
+
+listen stats
+   bind *:9000
+   mode http
+   stats enable
+   stats uri /
+```
+
+I have given my router a static ip 192.168.2.204, you can see it in the 
+
 ## Attach to server
 
 ```bash
